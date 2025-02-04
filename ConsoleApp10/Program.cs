@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Reflection.Emit;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using System.Threading;
 
 namespace ConsoleApp10
@@ -545,6 +547,8 @@ namespace ConsoleApp10
                     Console.WriteLine("{0}의 노력 끝에 고블린 킹은 사망하였습니다!");
                     Console.WriteLine("고블린 킹이 없어진 마을은 안전해졌습니다.\n");
                     Console.WriteLine("********CONGRATURATION********\n\n");
+                    string filePath = "SavePlayer.json";
+                    File.Delete(filePath); //클리어 시 게임 초기화
                     Environment.Exit(0);
                     break;
             }
@@ -948,6 +952,8 @@ namespace ConsoleApp10
                         {
                             Console.WriteLine("{0}이(가) 사망하였습니다...\n", M.Name);
                             Console.WriteLine("-The End-\n");
+                            string filePath = "SavePlayer.json";
+                            File.Delete(filePath); //사망 시 초기화
                             Environment.Exit(0);
                         }
                     }
@@ -986,10 +992,21 @@ namespace ConsoleApp10
             Console.WriteLine("아무키나 입력하세요.....");
             Console.ReadKey();
 
-            intro(); //인트로로
+            Home(); //홈으로
         }
         public void intro()
         {
+            string filePath = "SavePlayer.json"; //저장된 내용 가져오기
+
+            string[] lines = File.ReadAllLines(filePath);
+            Player = JsonSerializer.Deserialize<Player>(lines[0]);
+            Player.normalsord = JsonSerializer.Deserialize<NormalSword>(lines[1]);
+            Player.IronSword = JsonSerializer.Deserialize<IronSword>(lines[2]);
+            Player.normalSuit = JsonSerializer.Deserialize<NormalSuit>(lines[3]);
+            Player.ironSuit = JsonSerializer.Deserialize<IronSuit>(lines[4]);
+            Player.hpPotion = JsonSerializer.Deserialize<HpPotion>(lines[5]);
+            Player.stPotion = JsonSerializer.Deserialize<StPotion>(lines[6]);
+
             Console.Clear();
             Console.WriteLine("어서오세요 {0}님.\n", Player.Name);
             Console.WriteLine("이곳은 당신의 영지로 던전에 입장 전에 정비를 할 수 있습니다.\n");
@@ -1001,6 +1018,19 @@ namespace ConsoleApp10
         }
         public void Home()
         {
+            //마을에 들어올 때만 저장
+            string filePath = "SavePlayer.json"; // 플레이어 현 상태 저장 + 장비, 소모품의 획득량 저장
+            string player = JsonSerializer.Serialize(Player);
+            string normalsword = JsonSerializer.Serialize(Player.normalsord);
+            string ironsword = JsonSerializer.Serialize(Player.IronSword);
+            string normalsuit = JsonSerializer.Serialize(Player.normalSuit);
+            string ironsuit = JsonSerializer.Serialize(Player.ironSuit);
+            string hpposion = JsonSerializer.Serialize(Player.hpPotion);
+            string stposion = JsonSerializer.Serialize(Player.stPotion);
+            string[] json = {player,normalsword,ironsword,normalsuit,ironsuit,hpposion,stposion };
+            
+            File.WriteAllLines(filePath, json);
+
             int i;
             Console.Clear();
 
@@ -1765,7 +1795,16 @@ namespace ConsoleApp10
         static void Main(string[] args)
         {
             Stage stage = new Stage();
-            stage.Start();
+            string filePath = "SavePlayer.json";
+
+            if (File.Exists(filePath)) //저장된 플레이어 정보가 존재한다면
+            {
+                stage.intro();
+            }
+            else
+            {
+                stage.Start();
+            }
         }
     }
 }
