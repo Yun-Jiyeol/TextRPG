@@ -54,8 +54,11 @@ namespace ConsoleApp10
     {
         public NormalSword normalsord = new NormalSword();
         public IronSword IronSword = new IronSword();
+        public UniqueSword uniqueSword = new UniqueSword();
+
         public NormalSuit normalSuit = new NormalSuit();
         public IronSuit ironSuit = new IronSuit();
+        public UniqueSuit uniqueSuit = new UniqueSuit();
 
         public HpPotion hpPotion = new HpPotion();
         public StPotion stPotion = new StPotion();
@@ -72,7 +75,7 @@ namespace ConsoleApp10
             Health = 100;
             MaxHealth = 100;
 
-            Gold = 6000;
+            Gold = 600;
 
             Attack = 10;
             AddAttack = 0;
@@ -251,6 +254,20 @@ namespace ConsoleApp10
             PlayerUse = false;
         }
     }
+    public class UniqueSword : Equip
+    {
+        public UniqueSword()
+        {
+            Name = "유니크 검";
+            explain = "사용할 수 있는 가장 좋은 검이다.";
+            AddDamage = 30;
+            AddHealth = 0;
+            AddDefence = 0;
+            cost = 1000;
+            PlayerHave = false;
+            PlayerUse = false;
+        }
+    }
     public class NormalSuit : Equip
     {
         public NormalSuit()
@@ -275,6 +292,20 @@ namespace ConsoleApp10
             AddHealth = 30;
             AddDefence = 7;
             cost = 400;
+            PlayerHave = false;
+            PlayerUse = false;
+        }
+    }
+    public class UniqueSuit : Equip
+    {
+        public UniqueSuit()
+        {
+            Name = "유니크 갑옷";
+            explain = "사용할 수 있는 가장 좋은 갑옷이다.";
+            AddDamage = 0;
+            AddHealth = 70;
+            AddDefence = 15;
+            cost = 1500;
             PlayerHave = false;
             PlayerUse = false;
         }
@@ -640,6 +671,13 @@ namespace ConsoleApp10
                 num++;
                 numsword++;
             }
+            if (P.uniqueSword.PlayerHave) //무기 획득 유무
+            {
+                Phave[num] = P.uniqueSword;
+                numequip[num] = num + 1;
+                num++;
+                numsword++;
+            }
             if (P.normalSuit.PlayerHave) //무기 획득 유무
             {
                 Phave[num] = P.normalSuit;
@@ -650,6 +688,13 @@ namespace ConsoleApp10
             if (P.ironSuit.PlayerHave) //무기 획득 유무
             {
                 Phave[num] = P.ironSuit;
+                numequip[num] = num + 1;
+                num++;
+                numsuit++;
+            }
+            if (P.uniqueSuit.PlayerHave) //무기 획득 유무
+            {
+                Phave[num] = P.uniqueSuit;
                 numequip[num] = num + 1;
                 num++;
                 numsuit++;
@@ -782,10 +827,16 @@ namespace ConsoleApp10
             equips[i] = P.IronSword;
             isPlayerHave(equips[i], i + 1);
             i++;
+            equips[i] = P.uniqueSword;
+            isPlayerHave(equips[i], i + 1);
+            i++;
             equips[i] = P.normalSuit;
             isPlayerHave(equips[i], i + 1);
             i++;
             equips[i] = P.ironSuit;
+            isPlayerHave(equips[i], i + 1);
+            i++;
+            equips[i] = P.uniqueSuit;
             isPlayerHave(equips[i], i + 1);
             i++;
 
@@ -1002,10 +1053,12 @@ namespace ConsoleApp10
             Player = JsonSerializer.Deserialize<Player>(lines[0]);
             Player.normalsord = JsonSerializer.Deserialize<NormalSword>(lines[1]);
             Player.IronSword = JsonSerializer.Deserialize<IronSword>(lines[2]);
-            Player.normalSuit = JsonSerializer.Deserialize<NormalSuit>(lines[3]);
-            Player.ironSuit = JsonSerializer.Deserialize<IronSuit>(lines[4]);
-            Player.hpPotion = JsonSerializer.Deserialize<HpPotion>(lines[5]);
-            Player.stPotion = JsonSerializer.Deserialize<StPotion>(lines[6]);
+            Player.uniqueSword = JsonSerializer.Deserialize<UniqueSword>(lines[3]);
+            Player.normalSuit = JsonSerializer.Deserialize<NormalSuit>(lines[4]);
+            Player.ironSuit = JsonSerializer.Deserialize<IronSuit>(lines[5]);
+            Player.uniqueSuit = JsonSerializer.Deserialize<UniqueSuit>(lines[6]);
+            Player.hpPotion = JsonSerializer.Deserialize<HpPotion>(lines[7]);
+            Player.stPotion = JsonSerializer.Deserialize<StPotion>(lines[8]);
 
             Console.Clear();
             Console.WriteLine("어서오세요 {0}님.\n", Player.Name);
@@ -1023,13 +1076,14 @@ namespace ConsoleApp10
             string player = JsonSerializer.Serialize(Player);
             string normalsword = JsonSerializer.Serialize(Player.normalsord);
             string ironsword = JsonSerializer.Serialize(Player.IronSword);
+            string uniquesword = JsonSerializer.Serialize(Player.uniqueSuit);
             string normalsuit = JsonSerializer.Serialize(Player.normalSuit);
             string ironsuit = JsonSerializer.Serialize(Player.ironSuit);
+            string uniquesuit = JsonSerializer.Serialize(Player.uniqueSuit);
             string hpposion = JsonSerializer.Serialize(Player.hpPotion);
             string stposion = JsonSerializer.Serialize(Player.stPotion);
-            string[] json = {player,normalsword,ironsword,normalsuit,ironsuit,hpposion,stposion };
-            
-            File.WriteAllLines(filePath, json);
+            string[] json = {player,normalsword,ironsword, uniquesword,normalsuit, ironsuit, uniquesuit,hpposion, stposion };
+            File.WriteAllLines(filePath, json); //저장
 
             int i;
             Console.Clear();
