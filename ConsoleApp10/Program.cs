@@ -332,6 +332,8 @@ namespace ConsoleApp10
 
     public class PlayerInput
     {
+        Random random = new Random();
+
         public int Input(int i) //1-i까지의 숫자를 입력 이외에는 "잘못된 입력입니다."
         {
             Console.Write("입력 : ");
@@ -418,7 +420,6 @@ namespace ConsoleApp10
         }
         public Monster RandomMonster(int size)
         {
-            Random random = new Random();
             int rannum = random.Next(1, 101); //1~100까지 랜덤 정수 받기
             if (size == 3) //일반 던전
             {
@@ -432,9 +433,136 @@ namespace ConsoleApp10
                     GoblinChecker goblin = new GoblinChecker();
                     return goblin;
                 }
+            }else if(size == 4)
+            {
+                if (rannum <= 50) //50프로 확률로 고블린, 40프로 확률 정찰병, 10프로 확률 전사
+                {
+                    Goblin goblin = new Goblin();
+                    return goblin;
+                }
+                else if(rannum <= 90)
+                {
+                    GoblinChecker goblin = new GoblinChecker();
+                    return goblin;
+                }
+                else
+                {
+                    GoblinWarrior goblin = new GoblinWarrior();
+                    return goblin;
+                }
+            }
+            else if (size == 5)
+            {
+                if (rannum <= 20) //20프로 확률로 고블린, 50프로 확률 정찰병, 30프로 확률 전사
+                {
+                    Goblin goblin = new Goblin();
+                    return goblin;
+                }
+                else if (rannum <= 70)
+                {
+                    GoblinChecker goblin = new GoblinChecker();
+                    return goblin;
+                }
+                else
+                {
+                    GoblinWarrior goblin = new GoblinWarrior();
+                    return goblin;
+                }
+            }
+            else //마지막 던전용
+            {
+                if (rannum <= 60)
+                {
+                    GoblinChecker goblin = new GoblinChecker();
+                    return goblin;
+                }
+                else
+                {
+                    GoblinWarrior goblin = new GoblinWarrior();
+                    return goblin;
+                }
+            }
+        }
+
+        public void PlayerGetEx(Player P, Monster M)
+        {
+            P.Ex += M.Ex;
+            if(P.Ex > P.MaxEx)
+            {
+                Console.WriteLine("*****래벨 업*****");
+                P.Level += 1; //player 랩업
+                P.Ex -= P.MaxEx;
+                P.MaxEx += P.MaxEx/2; //최대 경험치 증가
+
+                P.MaxHealth += 10; //스텟 증가
+                P.Attack += 2;
+                P.Defence += 1;
+                P.TakeHeal(50); //랩업에 따른 회복
+            }
+        }
+
+        public void GoldRoom(Player P , int min , int max) //보물방용
+        {
+            int getgold = random.Next(min,max);
+            Console.WriteLine("{0}은(는) {1}의 골드를 획득했습니다!\n",P.Name,getgold);
+            P.Gold += getgold;
+
+            int randomdrop = random.Next(1,101);
+            if(randomdrop > 50)
+            {
+                Console.WriteLine("{0}은(는) {1}(을)를 찾았습니다!", P.Name, P.hpPotion.Name);
+                P.hpPotion.Get();
+            }else if(randomdrop > 80)
+            {
+                Console.WriteLine("{0}은(는) {1}(을)를 찾았습니다!", P.Name, P.stPotion.Name);
+                P.stPotion.Get();
+            }
+            else
+            {
+                Console.WriteLine("다른건 없었습니다.");
+            }
+        }
+
+        public void DropTable(Player P, Monster M) //몬스터를 잡을 시
+        {
+            int max = 0, min = 0;
+            switch (M.Name)
+            {
+                case "고블린 일꾼":
+                    min = 0;
+                    max = 100;
+                    break;
+                case "고블린 정찰병":
+                    min = 40;
+                    max = 140;
+                    break;
+                case "고블린 전사":
+                    min = 80;
+                    max = 180;
+                    break;
+                case "고블린 왕":
+                    Console.WriteLine("{0}의 노력 끝에 고블린 킹은 사망하였습니다!");
+                    Console.WriteLine("고블린 킹이 없어진 마을은 안전해졌습니다.\n");
+                    Console.WriteLine("********CONGRATURATION********\n\n");
+                    Environment.Exit(0);
+                    break;
             }
 
-            return new Goblin();
+            int randomdrop = random.Next(0, max);
+            if (randomdrop > 60)
+            {
+                Console.WriteLine("{0}은(는) {1}(을)를 찾았습니다!", P.Name, P.hpPotion.Name);
+                P.hpPotion.Get();
+            }
+            else if (randomdrop > 120)
+            {
+                Console.WriteLine("{0}은(는) {1}(을)를 찾았습니다!", P.Name, P.stPotion.Name);
+                P.stPotion.Get();
+            }
+            else
+            {
+                Console.WriteLine("다른건 없었습니다.");
+            }
         }
     }
     public class MakeUI
@@ -776,7 +904,9 @@ namespace ConsoleApp10
 
                     if (M.IsDead) //몬스터의 사망확인
                     {
-                        //dropTable.isWho(M, P);
+                        Input.DropTable(P,M);
+                        Input.PlayerGetEx(P,M);
+                        P.AddAttack = 0; //포션 초기화
                         Console.WriteLine("{0}을 잡고 {1}은 던전으로 귀환했습니다.\n", M.Name, P.Name);
                     }
                     else
@@ -792,6 +922,8 @@ namespace ConsoleApp10
 
                         if (P.IsDead) //플레이어의 사망 확인
                         {
+                            Console.WriteLine("{0}이(가) 사망하였습니다...\n", M.Name);
+                            Console.WriteLine("-The End-\n");
                             Environment.Exit(0);
                         }
                     }
@@ -989,6 +1121,7 @@ namespace ConsoleApp10
                         Console.WriteLine("레벨이 부족합니다.");
                         Console.WriteLine("\n아무키나 입력하세요.....");
                         Console.ReadKey();
+                        ChooseDunguen();
                     }
                     break;
                 case 3:
@@ -1008,6 +1141,7 @@ namespace ConsoleApp10
                         Console.WriteLine("레벨이 부족합니다.");
                         Console.WriteLine("\n아무키나 입력하세요.....");
                         Console.ReadKey();
+                        ChooseDunguen();
                     }
                     break;
                 case 4:
@@ -1043,7 +1177,6 @@ namespace ConsoleApp10
             int[] room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
             //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
             int[] makeroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //방을 번호로
-            int[] copyroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //초기화용
             Input.MakeDuguen(size, makeroom);
 
             Console.WriteLine("\n10. 도주\n");
@@ -1117,13 +1250,16 @@ namespace ConsoleApp10
                                         //방 초기화
                                         room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
                                         //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
-                                        makeroom = copyroom;
+                                        for(int e = 1; e <= size * size; e++)
+                                        {
+                                            makeroom[e - 1] = e;
+                                        }
                                     }
                                     break;
                                 case 1:
                                     Console.WriteLine("보물 방을 찾았습니다!\n");
                                     Console.WriteLine("보상을 획득 했습니다.\n");
-
+                                    Input.GoldRoom(Player,50,150); //보물방 보상
                                     makeroom[i - 1] = 0;
                                     room[i - 1] = 4;
                                     Console.WriteLine("\n아무키나 입력하세요.....");
@@ -1132,9 +1268,13 @@ namespace ConsoleApp10
                                 case 2:
                                     Console.WriteLine("몬스터가 기습했습니다!\n");
                                     Monster mon = Input.RandomMonster(size);
-                                    while (!mon.IsDead)
+                                    while (true)
                                     {
                                         MakeUI.MvsP(mon, Player);
+                                        if (mon.IsDead)
+                                        {
+                                            break;
+                                        }
                                         Console.Clear();
                                     }
                                     makeroom[i - 1] = 0;
@@ -1170,15 +1310,429 @@ namespace ConsoleApp10
         }
         public void MiddleDunguen()
         {
+            Console.Clear();
+            int size = 4;
+            int floor = 1;
+            int maxfloor = 3;
+            int[] room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
+            //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+            int[] makeroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }; //방을 번호로
+            Input.MakeDuguen(size, makeroom);
 
+            Console.WriteLine("\n17. 도주\n");
+            Console.WriteLine("현제 위치 : 중급 던전 {0}층", floor);
+            Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+            int i = 0;
+            while (true)
+            {
+                i = Input.Input(17);
+                if (i != 0)
+                {
+                    if (i == 17)
+                    {
+                        Console.WriteLine("도주하기로 선택했습니다.");
+                        Thread.Sleep(2000);
+                        Console.Clear();
+                        Console.Write("영지으로 이동 중입니다..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Home();
+                    }
+                    else
+                    {
+                        if (room[i - 1] != 4)
+                        {
+                            Console.Clear();
+                            Console.Write("{0}은(는) {1}번 째 방을 살펴보기로 했다\n", Player.Name, i);
+                            Thread.Sleep(1000);
+                            switch (room[i - 1])
+                            {
+                                case 0:
+                                    if (floor == maxfloor)
+                                    {
+                                        Console.WriteLine("탈출구를 찾았습니다. 탈출하겠습니까?\n");
+                                        Console.WriteLine("1. 탈출한다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("다음 층으로 가는 길을 찾았습니다. 가시겠습니까? (현제 층 : {0}, 마지막 층 : {1})\n", floor, maxfloor);
+                                        Console.WriteLine("1. 다음 층으로 간다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    int j = 0; //선택
+                                    while (true)
+                                    {
+                                        j = Input.Input(2);
+                                        if (j != 0)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (j == 1 && floor == maxfloor)
+                                    {
+                                        Console.Write("탈출하여 영지로 복귀 합니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        Home();
+                                    }
+                                    else if (j == 1 && floor != maxfloor) //막층
+                                    {
+                                        Console.Write("다음 층으로 이동중입니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        floor++; //다음층
+                                        //방 초기화
+                                        room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
+                                        //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+                                        for (int e = 1; e <= size * size; e++)
+                                        {
+                                            makeroom[e - 1] = e;
+                                        }
+                                    }
+                                    break;
+                                case 1:
+                                    Console.WriteLine("보물 방을 찾았습니다!\n");
+                                    Console.WriteLine("보상을 획득 했습니다.\n");
+                                    Input.GoldRoom(Player, 100, 250); //보물방 보상
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 2:
+                                    Console.WriteLine("몬스터가 기습했습니다!\n");
+                                    Monster mon = Input.RandomMonster(size);
+                                    while (true)
+                                    {
+                                        MakeUI.MvsP(mon, Player);
+                                        if (mon.IsDead)
+                                        {
+                                            break;
+                                        }
+                                        Console.Clear();
+                                    }
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 3:
+                                    Console.WriteLine("빈 방을 찾았습니다!\n");
+                                    Console.WriteLine("다시 원래 장소로 돌아갑니다.\n");
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n{0}번 째 방은 이미 살펴본 방입니다.", i);
+                            Console.WriteLine("아무키나 입력하세요.....");
+                            Console.ReadKey();
+                        }
+                    }
+
+                    Console.Clear();
+                    Input.MakeDuguen(size, makeroom);
+                    Console.WriteLine("\n17. 도주\n");
+                    Console.WriteLine("현제 위치 : 중급 던전 {0}층", floor);
+                    Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+                }
+            }
         }
         public void HighDunguen()
         {
+            Console.Clear();
+            int size = 5;
+            int floor = 1;
+            int maxfloor = 3;
+            int[] room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
+            //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+            int[] makeroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,17,18,19,20,21,22,23,24,25}; //방을 번호로
+            Input.MakeDuguen(size, makeroom);
 
+            Console.WriteLine("\n26. 도주\n");
+            Console.WriteLine("현제 위치 : 상급 던전 {0}층", floor);
+            Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+            int i = 0;
+            while (true)
+            {
+                i = Input.Input(26);
+                if (i != 0)
+                {
+                    if (i == 26)
+                    {
+                        Console.WriteLine("도주하기로 선택했습니다.");
+                        Thread.Sleep(2000);
+                        Console.Clear();
+                        Console.Write("영지으로 이동 중입니다..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Home();
+                    }
+                    else
+                    {
+                        if (room[i - 1] != 4)
+                        {
+                            Console.Clear();
+                            Console.Write("{0}은(는) {1}번 째 방을 살펴보기로 했다\n", Player.Name, i);
+                            Thread.Sleep(1000);
+                            switch (room[i - 1])
+                            {
+                                case 0:
+                                    if (floor == maxfloor)
+                                    {
+                                        Console.WriteLine("탈출구를 찾았습니다. 탈출하겠습니까?\n");
+                                        Console.WriteLine("1. 탈출한다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("다음 층으로 가는 길을 찾았습니다. 가시겠습니까? (현제 층 : {0}, 마지막 층 : {1})\n", floor, maxfloor);
+                                        Console.WriteLine("1. 다음 층으로 간다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    int j = 0; //선택
+                                    while (true)
+                                    {
+                                        j = Input.Input(2);
+                                        if (j != 0)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (j == 1 && floor == maxfloor)
+                                    {
+                                        Console.Write("탈출하여 영지로 복귀 합니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        Home();
+                                    }
+                                    else if (j == 1 && floor != maxfloor) //막층
+                                    {
+                                        Console.Write("다음 층으로 이동중입니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        floor++; //다음층
+                                        //방 초기화
+                                        room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
+                                        //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+                                        for (int e = 1; e <= size * size; e++)
+                                        {
+                                            makeroom[e - 1] = e;
+                                        }
+                                    }
+                                    break;
+                                case 1:
+                                    Console.WriteLine("보물 방을 찾았습니다!\n");
+                                    Console.WriteLine("보상을 획득 했습니다.\n");
+                                    Input.GoldRoom(Player, 250, 500); //보물방 보상
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 2:
+                                    Console.WriteLine("몬스터가 기습했습니다!\n");
+                                    Monster mon = Input.RandomMonster(size);
+                                    while (true)
+                                    {
+                                        MakeUI.MvsP(mon, Player);
+                                        if (mon.IsDead)
+                                        {
+                                            break;
+                                        }
+                                        Console.Clear();
+                                    }
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 3:
+                                    Console.WriteLine("빈 방을 찾았습니다!\n");
+                                    Console.WriteLine("다시 원래 장소로 돌아갑니다.\n");
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n{0}번 째 방은 이미 살펴본 방입니다.", i);
+                            Console.WriteLine("아무키나 입력하세요.....");
+                            Console.ReadKey();
+                        }
+                    }
+
+                    Console.Clear();
+                    Input.MakeDuguen(size, makeroom);
+                    Console.WriteLine("\n26. 도주\n");
+                    Console.WriteLine("현제 위치 : 상급 던전 {0}층", floor);
+                    Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+                }
+            }
         }
         public void LastDunguen()
         {
+            Console.Clear();
+            int size = 5;
+            int floor = 1;
+            int maxfloor = 4;
+            int[] room = Input.RandomRoom(6); //무슨방인지 판단용(보이면 안됨)
+            //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+            int[] makeroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 }; //방을 번호로
+            Input.MakeDuguen(size, makeroom);
 
+            Console.WriteLine("\n26. 도주\n");
+            Console.WriteLine("현제 위치 : 마지막 던전 {0}층", floor);
+            Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+            int i = 0;
+            while (true)
+            {
+                i = Input.Input(26);
+                if (i != 0)
+                {
+                    if (i == 26)
+                    {
+                        Console.WriteLine("도주하기로 선택했습니다.");
+                        Thread.Sleep(2000);
+                        Console.Clear();
+                        Console.Write("영지으로 이동 중입니다..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Home();
+                    }
+                    else
+                    {
+                        if (room[i - 1] != 4)
+                        {
+                            Console.Clear();
+                            Console.Write("{0}은(는) {1}번 째 방을 살펴보기로 했다\n", Player.Name, i);
+                            Thread.Sleep(1000);
+                            switch (room[i - 1])
+                            {
+                                case 0:
+                                    if (floor == maxfloor)
+                                    {
+                                        Console.WriteLine("탈출구를 찾았습니다. 탈출하겠습니까?\n");
+                                        Console.WriteLine("1. 탈출한다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("다음 층으로 가는 길을 찾았습니다. 가시겠습니까? (현제 층 : {0}, 마지막 층 : {1})\n", floor, maxfloor);
+                                        Console.WriteLine("1. 다음 층으로 간다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    int j = 0; //선택
+                                    while (true)
+                                    {
+                                        j = Input.Input(2);
+                                        if (j != 0)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (j == 1 && floor == maxfloor) //보스 기습
+                                    {
+                                        Console.WriteLine("보스가 기습했습니다!\n");
+                                        GoblinKing boss = new GoblinKing();
+                                        while (true)
+                                        {
+                                            MakeUI.MvsP(boss, Player);
+                                            if (boss.IsDead)
+                                            {
+                                                break;
+                                            }
+                                            Console.Clear();
+                                        }
+                                    }
+                                    else if (j == 1 && floor != maxfloor) //막층
+                                    {
+                                        Console.Write("다음 층으로 이동중입니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        floor++; //다음층
+                                        //방 초기화
+                                        room = Input.RandomRoom(6); //무슨방인지 판단용(보이면 안됨)
+                                        //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+                                        for (int e = 1; e <= size * size; e++)
+                                        {
+                                            makeroom[e - 1] = e;
+                                        }
+                                    }
+                                    break;
+                                case 1:
+                                    Console.WriteLine("보물 방을 찾았습니다!\n");
+                                    Console.WriteLine("보상을 획득 했습니다.\n");
+                                    Input.GoldRoom(Player, 250, 500); //보물방 보상
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 2:
+                                    Console.WriteLine("몬스터가 기습했습니다!\n");
+                                    Monster mon = Input.RandomMonster(size);
+                                    while (true)
+                                    {
+                                        MakeUI.MvsP(mon, Player);
+                                        if (mon.IsDead)
+                                        {
+                                            break;
+                                        }
+                                        Console.Clear();
+                                    }
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 3:
+                                    Console.WriteLine("빈 방을 찾았습니다!\n");
+                                    Console.WriteLine("다시 원래 장소로 돌아갑니다.\n");
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n{0}번 째 방은 이미 살펴본 방입니다.", i);
+                            Console.WriteLine("아무키나 입력하세요.....");
+                            Console.ReadKey();
+                        }
+                    }
+
+                    Console.Clear();
+                    Input.MakeDuguen(size, makeroom);
+                    Console.WriteLine("\n26. 도주\n");
+                    Console.WriteLine("현제 위치 : 상급 던전 {0}층", floor);
+                    Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+                }
+            }
         }
     }
 
