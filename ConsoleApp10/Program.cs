@@ -840,20 +840,57 @@ namespace ConsoleApp10
             isPlayerHave(equips[i], i + 1);
             i++;
 
-            Console.WriteLine("{0} . 돌아가기\n", i+1);
+            Console.WriteLine("\n{0} . 장비 판매하기", i + 1);
+            Console.WriteLine("{0} . 돌아가기\n", i + 2);
 
             Console.WriteLine("원하는 상품의 번호를 입력해 주세요.\n");
             int j = 0;
             while (true)
             {
-                j = Input.Input(i+1); //1~i 숫자 입력 받기
+                j = Input.Input(i+2); //1~i 숫자 입력 받기
                 if (j != 0)
                 {
                     break;
                 }
             }
 
-            if(j != i + 1)//돌아가기 누를 시 마을로
+            if(j == i + 1)
+            {
+                Console.WriteLine("{0}. 판매 창 종료\n", i+1);
+                Console.WriteLine("판매하고 싶은 장비의 번호를 입력하세요.");
+
+                int sellnum = 0;
+                while (true)
+                {
+                    sellnum = Input.Input(i + 1); //1~i 숫자 입력 받기
+                    if (sellnum != 0)
+                    {
+                        break;
+                    }
+                }
+                if (sellnum != i + 1)
+                {
+                    if (equips[sellnum - 1].PlayerHave)
+                    {
+                        if(equips[sellnum - 1].PlayerUse)
+                        {
+                            equips[sellnum - 1].Use(P); //스텟때문에 USE를 사용하여 사용 종료
+                        }
+                        int sellcost = equips[sellnum - 1].cost * 3 / 10; //30% 환급
+                        Console.WriteLine("{0}을(를) 판매하여 {1}$의 골드를 얻었습니다.\n", equips[sellnum - 1].Name, sellcost);
+                        P.Gold += sellcost;
+                        equips[sellnum - 1].PlayerHave = false;
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0}을(를) 가지고 있지 않습니다.\n", equips[sellnum - 1].Name);
+                    }
+                }
+                Console.WriteLine("아무키나 입력하세요.....");
+                Console.ReadKey();
+                equipstore(P); //판매 후 상점에 머물기
+            }
+            else if(j != i + 2)//돌아가기 누를 시 마을로
             {
                 if (equips[j - 1].PlayerHave) //가지고 있다면
                 {
