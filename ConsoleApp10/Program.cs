@@ -81,6 +81,112 @@ namespace ConsoleApp10
             IsDead = false;
         }
     }
+    public class Monster : ICharacter { }
+
+    public class Goblin : Monster
+    {
+        public Goblin()
+        {
+            Name = "고블린 일꾼";
+            job = "일꾼";
+
+            Level = 0;
+            Ex = 10;
+            MaxEx = 0;
+
+            Health = 30;
+            MaxHealth = 30;
+
+            Gold = -1;
+
+            Attack = 15;
+            AddAttack = 0;
+            itemAttack = 0;
+
+            Defence = 3;
+            itemDefence = 0;
+
+            IsDead = false;
+        }
+    }
+    public class GoblinChecker : Monster
+    {
+        public GoblinChecker()
+        {
+            Name = "고블린 정찰병";
+            job = "정찰병";
+
+            Level = 0;
+            Ex = 30;
+            MaxEx = 0;
+
+            Health = 80;
+            MaxHealth = 80;
+
+            Gold = -1;
+
+            Attack = 30;
+            AddAttack = 0;
+            itemAttack = 0;
+
+            Defence = 10;
+            itemDefence = 0;
+
+            IsDead = false;
+        }
+    }
+    public class GoblinWarrior : Monster
+    {
+        public GoblinWarrior()
+        {
+            Name = "고블린 전사";
+            job = "전사";
+
+            Level = 0;
+            Ex = 70;
+            MaxEx = 0;
+
+            Health = 150;
+            MaxHealth = 150;
+
+            Gold = -1;
+
+            Attack = 45;
+            AddAttack = 0;
+            itemAttack = 0;
+
+            Defence = 30;
+            itemDefence = 0;
+
+            IsDead = false;
+        }
+    }
+    public class GoblinKing : Monster
+    {
+        public GoblinKing()
+        {
+            Name = "고블린 왕";
+            job = "**최종보스**";
+
+            Level = 0;
+            Ex = 0;
+            MaxEx = 0;
+
+            Health = 300;
+            MaxHealth = 300;
+
+            Gold = -1;
+
+            Attack = 70;
+            AddAttack = 0;
+            itemAttack = 0;
+
+            Defence = 50;
+            itemDefence = 0;
+
+            IsDead = false;
+        }
+    }
     public class Item
     {
         public string Name { get; set; }
@@ -242,6 +348,94 @@ namespace ConsoleApp10
             Console.WriteLine("잘못된 입력입니다.");
             return 0;
         }
+        public int[] RandomRoom(int type)
+        {
+            if (type == 3)
+            {
+                int[] arr = { 0, 1, 1, 2, 2, 2, 2, 3, 3 }; //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방
+                RandomArray(arr);
+                return arr;
+            }
+            else if (type == 4)
+            {
+                int[] arr = { 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3 }; //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방
+                RandomArray(arr);
+                return arr;
+            }
+            else if (type == 5)
+            {
+                int[] arr = { 0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3}; //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방
+                RandomArray(arr);
+                return arr;
+            }
+            else{
+                int[] arr = { 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3 }; //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방
+                RandomArray(arr);
+                return arr;
+            }
+        }
+        public int[] RandomArray(int[] arr)
+        {
+            Random random = new Random();
+            for (int i = 0; i < arr.Length - 1; i++)
+            {
+                int j = random.Next(i, arr.Length - 1);
+                int temp = arr[j];
+                arr[j] = arr[i];
+                arr[i] = temp;
+            }
+            return arr;
+        }
+        public void MakeDuguen(int size , int[] room)
+        {
+            int x;
+            int y = 0;
+
+            for (int repeat =0; repeat < size* size; repeat++)
+            {
+                x = (repeat % size) * 5;
+                y = (repeat / size) * 2;
+
+                for (int i = 0; i < 5; i++) //x축 맵 그림
+                {
+                    Console.SetCursorPosition(i + x, y);
+                    Console.Write('*');
+                    Console.SetCursorPosition(i + x, 2 + y);
+                    Console.Write('*');
+                }
+                for (int i = 0; i < 2; i++) //y축 맵 그림
+                {
+                    Console.SetCursorPosition(x, i + y);
+                    Console.Write('*');
+                    Console.SetCursorPosition(5 + x, i + y);
+                    Console.Write('*');
+                }
+                Console.SetCursorPosition(2 + x, 1 + y);
+                Console.Write(room[repeat]);
+            }
+
+            Console.SetCursorPosition(0, y + 3);
+        }
+        public Monster RandomMonster(int size)
+        {
+            Random random = new Random();
+            int rannum = random.Next(1, 101); //1~100까지 랜덤 정수 받기
+            if (size == 3) //일반 던전
+            {
+                if (rannum <= 80) //80프로 확률로 고블린, 20프로 확률 정찰병
+                {
+                    Goblin goblin = new Goblin();
+                    return goblin;
+                }
+                else
+                {
+                    GoblinChecker goblin = new GoblinChecker();
+                    return goblin;
+                }
+            }
+
+            return new Goblin();
+        }
     }
     public class MakeUI
     {
@@ -250,9 +444,20 @@ namespace ConsoleApp10
         {
             Console.WriteLine("이름 : {0}", C.Name);
             Console.WriteLine("직업 : {0}", C.job);
-            Console.WriteLine("레벨 : {0}", C.Level);
-            Console.WriteLine("경험치 : {0} / {1}", C.Ex, C.MaxEx);
-            Console.WriteLine("소유 골드 : {0}$", C.Gold);
+            if(C.Level > 0)
+            {
+                Console.WriteLine("레벨 : {0}", C.Level);
+                Console.WriteLine("경험치 : {0} / {1}", C.Ex, C.MaxEx);
+            }
+            else
+            {
+                Console.WriteLine("주는 경험치 : {0}", C.Ex);
+            }
+
+            if(C.Gold >= 0)
+            {
+                Console.WriteLine("소유 골드 : {0}$", C.Gold);
+            }
 
             Console.Write("체력 : {0} / {1}", C.Health, C.MaxHealth + C.AddHealth);
             if(C.AddHealth > 0)
@@ -386,6 +591,7 @@ namespace ConsoleApp10
             {
                 Console.WriteLine("{0}. 돌아가기\n", i);
                 Console.WriteLine("각 아이템의 숫자를 입력 시 사용됩니다.\n");
+                Console.WriteLine("{0}의 현제 체력 : {1} / {2}\n", P.Name,P.Health,P.AddHealth+P.MaxHealth);
                 int j = 0;
                 while (true)
                 {
@@ -538,6 +744,67 @@ namespace ConsoleApp10
                 Console.WriteLine("아무키나 입력하세요.....");
                 Console.ReadKey();
                 Hospital(P); //병원에 계속 머물도록
+            }
+        }
+        public void MvsP(Monster M, Player P)
+        {
+            Console.WriteLine("\t{0} : {1} / {2}\n", M.Name, M.Health, M.MaxHealth);
+            Console.WriteLine("\t{0} : {1} / {2}\n", P.Name, P.Health, P.MaxHealth + P.AddHealth);
+
+            Console.WriteLine("1. 공격");
+            Console.WriteLine("2. 상태 확인");
+            Console.WriteLine("3. 아이템 사용\n");
+
+            int i = 0;
+            while (true)
+            {
+                i = Input.Input(3);
+                if (i != 0)
+                {
+                    break;
+                }
+            }
+
+            switch (i)
+            {
+                case 1:
+                    Console.WriteLine("당신은 공격을 선택하였습니다.\n");
+                    Console.WriteLine("{0}의 공격으로 {1}은(는) {2}만큼의 데미지를 입었습니다.\n\n", P.Name, M.Name, P.Attack + P.AddAttack);
+                    M.TakeDamage(P.Attack + P.AddAttack);
+
+                    Thread.Sleep(1000); //잠시 텀을 준다
+
+                    if (M.IsDead) //몬스터의 사망확인
+                    {
+                        //dropTable.isWho(M, P);
+                        Console.WriteLine("{0}을 잡고 {1}은 던전으로 귀환했습니다.\n", M.Name, P.Name);
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0}이 {1}을(를) 공격했습니다.\n", M.Name, P.Name);
+                        Console.WriteLine("{0}의 공격으로 {1}은(는) {2}만큼의 데미지를 입었습니다.\n", M.Name, P.Name, M.Name);
+                        P.TakeDamage(M.Attack);
+
+                        if (P.IsDead) //플레이어의 사망 확인
+                        {
+                            Environment.Exit(0);
+                        }
+                    }
+                    Thread.Sleep(1000); //잠시 텀을 준다
+                    break;
+
+                case 2:
+                    Console.WriteLine("당신은 상태 확인을 선택했습니다.\n");
+                    checkstate(P);
+                    Console.WriteLine();
+                    checkstate(M);
+                    Console.WriteLine();
+                    break;
+
+                case 3:
+                    Console.WriteLine("당신은 아이템 사용을 선택하였습니다.\n");
+                    checkuseinven(P, true, false);
+                    break;
             }
         }
     }
@@ -764,7 +1031,133 @@ namespace ConsoleApp10
         }
         public void NormalDunguen()
         {
+            Console.Clear();
+            int size = 3;
+            int floor = 1;
+            int maxfloor = 2;
+            int[] room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
+            //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+            int[] makeroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //방을 번호로
+            int[] copyroom = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }; //초기화용
+            Input.MakeDuguen(size, makeroom);
 
+            Console.WriteLine("\n10. 도주\n");
+            Console.WriteLine("현제 위치 : 일반 던전 {0}층", floor);
+            Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+            int i = 0;
+            while (true)
+            {
+                i = Input.Input(10);
+                if (i != 0)
+                {
+                    if (i == 10)
+                    {
+                        Console.WriteLine("도주하기로 선택했습니다.");
+                        Thread.Sleep(2000);
+                        Console.Clear();
+                        Console.Write("영지으로 이동 중입니다..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Console.Write("..");
+                        Thread.Sleep(1000);
+                        Home();
+                    }
+                    else
+                    {
+                        if (room[i-1] != 4)
+                        {
+                            Console.Clear();
+                            Console.Write("{0}은(는) {1}번 째 방을 살펴보기로 했다\n", Player.Name, i);
+                            Thread.Sleep(1000);
+                            switch(room[i - 1])
+                            {
+                                case 0:
+                                    if(floor == maxfloor)
+                                    {
+                                        Console.WriteLine("탈출구를 찾았습니다. 탈출하겠습니까?\n");
+                                        Console.WriteLine("1. 탈출한다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("다음 층으로 가는 길을 찾았습니다. 가시겠습니까? (현제 층 : {0}, 마지막 층 : {1})\n", floor, maxfloor);
+                                        Console.WriteLine("1. 다음 층으로 간다.");
+                                        Console.WriteLine("2. 이번 층을 더 둘러본다.\n");
+                                    }
+                                    int j = 0; //선택
+                                    while (true)
+                                    {
+                                        j = Input.Input(2);
+                                        if (j != 0)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if (j == 1 && floor == maxfloor)
+                                    {
+                                        Console.Write("탈출하여 영지로 복귀 합니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        Home();
+                                    }
+                                    else if (j == 1 && floor != maxfloor) //막층
+                                    {
+                                        Console.Write("다음 층으로 이동중입니다..");
+                                        Thread.Sleep(1000);
+                                        Console.Write("..");
+                                        Thread.Sleep(1000);
+                                        floor++; //다음층
+                                        //방 초기화
+                                        room = Input.RandomRoom(size); //무슨방인지 판단용(보이면 안됨)
+                                        //0= 다음 층 또는 클리어 | 1 = 보물방 | 2 = 몬스터 | 3 = 빈방 | 4 = 이미 확인한 방
+                                        makeroom = copyroom;
+                                    }
+                                    break;
+                                case 1:
+                                    Console.WriteLine("보물 방을 찾았습니다!\n");
+                                    Console.WriteLine("보상을 획득 했습니다.\n");
+
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                                case 2:
+                                    Console.WriteLine("몬스터가 기습했습니다!\n");
+                                    Monster mon = Input.RandomMonster(size);
+                                    while (!mon.IsDead)
+                                    {
+                                        MakeUI.MvsP(mon, Player);
+                                        Console.Clear();
+                                    }
+                                    break;
+                                case 3:
+                                    Console.WriteLine("빈 방을 찾았습니다!\n");
+                                    Console.WriteLine("다시 원래 장소로 돌아갑니다.\n");
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n{0}번 째 방은 이미 살펴본 방입니다.",i);
+                            Console.WriteLine("아무키나 입력하세요.....");
+                            Console.ReadKey();
+                        }
+                    }
+
+                    Console.Clear();
+                    Input.MakeDuguen(size, makeroom);
+                    Console.WriteLine("\n10. 도주\n");
+                    Console.WriteLine("현제 위치 : 일반 던전 {0}층", floor);
+                    Console.WriteLine("원하는 방 번호 또는 도주를 선택해 주세요");
+                }
+            }
         }
         public void MiddleDunguen()
         {
