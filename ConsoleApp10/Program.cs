@@ -738,25 +738,29 @@ namespace ConsoleApp10
                 }
                 if(j != num + 1) //돌아가기 선택시 Home()으로
                 {
-                    if(j <= numsword) //같은 느낌의 장비는 해제 | 하지만 해제는 불가능
+                    if (!Phave[j - 1].PlayerUse)
                     {
-                        for(int x = 0; x <  numsword; x++)
+                        if (j <= numsword) //같은 느낌의 장비는 해제 | 하지만 해제는 불가능
                         {
-                            if (Phave[x].PlayerUse)
+                            for (int x = 0; x < numsword; x++)
                             {
-                                Phave[x].Use(P);
+                                if (Phave[x].PlayerUse)
+                                {
+                                    Phave[x].Use(P);
+                                }
                             }
                         }
-                    }else if(j <= numsword + numsuit)
-                    {
-                        for (int x = numsword; x < numsword + numsuit; x++)
+                        else if (j <= numsword + numsuit)
                         {
-                            if (Phave[x].PlayerUse)
+                            for (int x = numsword; x < numsword + numsuit; x++)
                             {
-                                Phave[x].Use(P);
+                                if (Phave[x].PlayerUse)
+                                {
+                                    Phave[x].Use(P);
+                                }
                             }
                         }
-                    }
+                }
                     Phave[j-1].Use(P); // 착용or해제
                     Console.Clear();
                     checkEquipinven(P, true, false); //계속 장비 선택이 가능하도록
