@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection.Emit;
+using System.Runtime.ExceptionServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
@@ -69,7 +70,7 @@ namespace ConsoleApp10
             Health = 100;
             MaxHealth = 100;
 
-            Gold = 600;
+            Gold = 6000;
 
             Attack = 10;
             AddAttack = 0;
@@ -619,31 +620,35 @@ namespace ConsoleApp10
         {
             Equip[] Phave = new Equip[10];
             int[] numequip = new int[10];
-            int num = 0;
+            int num = 0, numsword = 0, numsuit = 0;
 
             if (P.normalsord.PlayerHave) //무기 획득 유무
             {
                 Phave[num] = P.normalsord;
                 numequip[num] = num + 1;
                 num++;
+                numsword++;
             }
             if (P.IronSword.PlayerHave) //무기 획득 유무
             {
                 Phave[num] = P.IronSword;
                 numequip[num] = num + 1;
                 num++;
+                numsword++;
             }
             if (P.normalSuit.PlayerHave) //무기 획득 유무
             {
                 Phave[num] = P.normalSuit;
                 numequip[num] = num + 1;
                 num++;
+                numsuit++;
             }
             if (P.ironSuit.PlayerHave) //무기 획득 유무
             {
                 Phave[num] = P.ironSuit;
                 numequip[num] = num + 1;
                 num++;
+                numsuit++;
             }
 
             Console.WriteLine("장비창");
@@ -680,10 +685,29 @@ namespace ConsoleApp10
                     if (j != 0)
                     {
                         break;
-                    }
+                    } 
                 }
                 if(j != num + 1) //돌아가기 선택시 Home()으로
                 {
+                    if(j <= numsword) //같은 느낌의 장비는 해제 | 하지만 해제는 불가능
+                    {
+                        for(int x = 0; x <  numsword; x++)
+                        {
+                            if (Phave[x].PlayerUse)
+                            {
+                                Phave[x].Use(P);
+                            }
+                        }
+                    }else if(j <= numsword + numsuit)
+                    {
+                        for (int x = numsword; x < numsword + numsuit; x++)
+                        {
+                            if (Phave[x].PlayerUse)
+                            {
+                                Phave[x].Use(P);
+                            }
+                        }
+                    }
                     Phave[j-1].Use(P); // 착용or해제
                     Console.Clear();
                     checkEquipinven(P, true, false); //계속 장비 선택이 가능하도록
