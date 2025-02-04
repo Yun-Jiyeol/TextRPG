@@ -103,7 +103,7 @@ namespace ConsoleApp10
             AddAttack = 0;
             itemAttack = 0;
 
-            Defence = 3;
+            Defence = 0;
             itemDefence = 0;
 
             IsDead = false;
@@ -129,7 +129,7 @@ namespace ConsoleApp10
             AddAttack = 0;
             itemAttack = 0;
 
-            Defence = 10;
+            Defence = 3;
             itemDefence = 0;
 
             IsDead = false;
@@ -155,7 +155,7 @@ namespace ConsoleApp10
             AddAttack = 0;
             itemAttack = 0;
 
-            Defence = 30;
+            Defence = 5;
             itemDefence = 0;
 
             IsDead = false;
@@ -177,7 +177,7 @@ namespace ConsoleApp10
 
             Gold = -1;
 
-            Attack = 70;
+            Attack = 10;
             AddAttack = 0;
             itemAttack = 0;
 
@@ -769,8 +769,8 @@ namespace ConsoleApp10
             {
                 case 1:
                     Console.WriteLine("당신은 공격을 선택하였습니다.\n");
-                    Console.WriteLine("{0}의 공격으로 {1}은(는) {2}만큼의 데미지를 입었습니다.\n\n", P.Name, M.Name, P.Attack + P.AddAttack);
-                    M.TakeDamage(P.Attack + P.AddAttack);
+                    Console.WriteLine("{0}의 공격으로 {1}은(는) {2}만큼의 데미지를 입었습니다.\n\n", P.Name, M.Name, P.Attack + P.AddAttack + P.itemAttack - M.Defence);
+                    M.TakeDamage(P.Attack + P.AddAttack + P.itemAttack);
 
                     Thread.Sleep(1000); //잠시 텀을 준다
 
@@ -782,7 +782,12 @@ namespace ConsoleApp10
                     else
                     {
                         Console.WriteLine("{0}이 {1}을(를) 공격했습니다.\n", M.Name, P.Name);
-                        Console.WriteLine("{0}의 공격으로 {1}은(는) {2}만큼의 데미지를 입었습니다.\n", M.Name, P.Name, M.Name);
+                        int a = 0;
+                        if ((M.Attack - P.Defence - P.itemDefence) > 0)
+                        {
+                            a = (M.Attack - P.Defence - P.itemDefence);
+                        }
+                        Console.WriteLine("{0}의 공격으로 {1}은(는) {2}만큼의 데미지를 입었습니다.\n", M.Name, P.Name,a);
                         P.TakeDamage(M.Attack);
 
                         if (P.IsDead) //플레이어의 사망 확인
@@ -1132,6 +1137,10 @@ namespace ConsoleApp10
                                         MakeUI.MvsP(mon, Player);
                                         Console.Clear();
                                     }
+                                    makeroom[i - 1] = 0;
+                                    room[i - 1] = 4;
+                                    Console.WriteLine("\n아무키나 입력하세요.....");
+                                    Console.ReadKey();
                                     break;
                                 case 3:
                                     Console.WriteLine("빈 방을 찾았습니다!\n");
