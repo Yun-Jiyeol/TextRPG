@@ -738,9 +738,9 @@ namespace ConsoleApp10
                 }
                 if(j != num + 1) //돌아가기 선택시 Home()으로
                 {
-                    if (!Phave[j - 1].PlayerUse)
+                    if (!Phave[j - 1].PlayerUse) //만약 착용중인 장비가 아니라면 같은 타입 장비 해제
                     {
-                        if (j <= numsword) //같은 느낌의 장비는 해제 | 하지만 해제는 불가능
+                        if (j <= numsword)
                         {
                             for (int x = 0; x < numsword; x++)
                             {
@@ -1077,8 +1077,20 @@ namespace ConsoleApp10
         public void Start()
         {
             // 게임 시작 시 플레이어 명 입력
-            Console.Write("플레이어의 이름을 입력해주세요 : ");
-            Player.Name = Console.ReadLine();
+            while (true)
+            {
+                Console.Write("플레이어의 이름을 입력해주세요 : ");
+                Player.Name = Console.ReadLine();
+
+                if(Player.Name == null || Player.Name == String.Empty) //이름을 정확히 입력할 때 까지
+                {
+                    Console.WriteLine("다시 입력해 주세요");
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             Console.WriteLine("\n플레이어의 이름은 {0}입니다.\n", Player.Name);
             Console.WriteLine("아무키나 입력하세요.....");
